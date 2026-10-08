@@ -103,6 +103,18 @@ describe('parseAppMessage', () => {
         tag: 'call:!r'
       })
     ).toEqual({ type: 'twake-embed:notification-close', tag: 'call:!r' })
+    // The resource it is about, whose space TwakeSpace opens
+    expect(
+      parseAppMessage({
+        type: 'twake-embed:notification',
+        ...notice,
+        resourceId: '!space'
+      })
+    ).toEqual({
+      type: 'twake-embed:notification',
+      ...notice,
+      resourceId: '!space'
+    })
   })
 
   it('refuses notifications that do not fit', () => {
@@ -118,6 +130,8 @@ describe('parseAppMessage', () => {
     refused({ ...notice, title: 'x'.repeat(257) })
     refused({ ...notice, body: 'x'.repeat(1_001) })
     refused({ ...notice, body: 3 })
+    refused({ ...notice, resourceId: '' })
+    refused({ ...notice, resourceId: 3 })
     expect(
       parseAppMessage({ type: 'twake-embed:notification-close', tag: '' })
     ).toBeNull()
