@@ -1,3 +1,10 @@
+## @linagora/twake-feedback [1.1.1](https://github.com/linagora/twake-libs/compare/@linagora/twake-feedback@1.1.0...@linagora/twake-feedback@1.1.1) (2026-10-12)
+
+
+### Bug Fixes
+
+* **twake-feedback:** Keep the button above modals ([7a6fe5a](https://github.com/linagora/twake-libs/commit/7a6fe5aa3e4ae5123528cc730883221c2ab4317b))
+
 # @linagora/twake-feedback [1.1.0](https://github.com/linagora/twake-libs/compare/@linagora/twake-feedback@1.0.0...@linagora/twake-feedback@1.1.0) (2026-10-07)
 
 
