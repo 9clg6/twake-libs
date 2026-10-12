@@ -1,3 +1,10 @@
+# @linagora/twake-websocket [1.2.0](https://github.com/linagora/twake-libs/compare/@linagora/twake-websocket@1.1.0...@linagora/twake-websocket@1.2.0) (2026-10-12)
+
+
+### Features
+
+* Added websocket connection hook ([#30](https://github.com/linagora/twake-libs/issues/30)) ([98bfeca](https://github.com/linagora/twake-libs/commit/98bfeca0c9d8919be105ea01b7e2e36687cffc9e))
+
 # @linagora/twake-websocket [1.1.0](https://github.com/linagora/twake-libs/compare/@linagora/twake-websocket@1.0.0...@linagora/twake-websocket@1.1.0) (2026-10-07)
 
 
