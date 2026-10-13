@@ -1,3 +1,10 @@
+# @linagora/twake-oidc [1.1.0](https://github.com/linagora/twake-libs/compare/@linagora/twake-oidc@1.0.1...@linagora/twake-oidc@1.1.0) (2026-10-13)
+
+
+### Features
+
+* **twake-oidc:** Sign in silently in the frame of another app ([05f38da](https://github.com/linagora/twake-libs/commit/05f38da273d319126d7a1061a03eb9e9400ad0ef))
+
 ## @linagora/twake-oidc [1.0.1](https://github.com/linagora/twake-libs/compare/@linagora/twake-oidc@1.0.0...@linagora/twake-oidc@1.0.1) (2026-10-08)
 
 
