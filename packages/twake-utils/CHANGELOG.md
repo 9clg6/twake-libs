@@ -1,3 +1,10 @@
+## @linagora/twake-utils [1.2.1](https://github.com/linagora/twake-libs/compare/@linagora/twake-utils@1.2.0...@linagora/twake-utils@1.2.1) (2026-10-13)
+
+
+### Bug Fixes
+
+* Prevent @ duplication in chat urls ([#32](https://github.com/linagora/twake-libs/issues/32)) ([639575e](https://github.com/linagora/twake-libs/commit/639575e1333e161f5debe7d4d8548bdc1725c438))
+
 # @linagora/twake-utils [1.2.0](https://github.com/linagora/twake-libs/compare/@linagora/twake-utils@1.1.0...@linagora/twake-utils@1.2.0) (2026-10-01)
 
 
