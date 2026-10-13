@@ -1,3 +1,10 @@
+# @linagora/twake-oidc [1.2.0](https://github.com/linagora/twake-libs/compare/@linagora/twake-oidc@1.1.0...@linagora/twake-oidc@1.2.0) (2026-10-13)
+
+
+### Features
+
+* **twake-oidc:** Hand the ID token to the SSO logout ([fecbd10](https://github.com/linagora/twake-libs/commit/fecbd10eee61f3f3efd9ed519178e4d049090066))
+
 # @linagora/twake-oidc [1.1.0](https://github.com/linagora/twake-libs/compare/@linagora/twake-oidc@1.0.1...@linagora/twake-oidc@1.1.0) (2026-10-13)
 
 
