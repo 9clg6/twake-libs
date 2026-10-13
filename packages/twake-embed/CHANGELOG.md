@@ -1,3 +1,10 @@
+# @linagora/twake-embed [3.6.0](https://github.com/linagora/twake-libs/compare/@linagora/twake-embed@3.5.0...@linagora/twake-embed@3.6.0) (2026-10-13)
+
+
+### Features
+
+* **twake-embed:** Open the links leaving the frame in a new tab ([c9dc3f0](https://github.com/linagora/twake-libs/commit/c9dc3f0b7ae492daaba8b86e65a458e2c5f58b65))
+
 # @linagora/twake-embed [3.5.0](https://github.com/linagora/twake-libs/compare/@linagora/twake-embed@3.4.0...@linagora/twake-embed@3.5.0) (2026-10-08)
 
 
