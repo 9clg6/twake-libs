@@ -1,3 +1,10 @@
+## @linagora/twake-bar [1.1.1](https://github.com/linagora/twake-libs/compare/@linagora/twake-bar@1.1.0...@linagora/twake-bar@1.1.1) (2026-10-22)
+
+
+### Bug Fixes
+
+* **twake-bar:** Space the app icon from the edge on mobile ([96fe622](https://github.com/linagora/twake-libs/commit/96fe622430657b7bca1c01c5a2aafc84cf79cb76))
+
 # @linagora/twake-bar [1.1.0](https://github.com/linagora/twake-libs/compare/@linagora/twake-bar@1.0.3...@linagora/twake-bar@1.1.0) (2026-10-09)
 
 
