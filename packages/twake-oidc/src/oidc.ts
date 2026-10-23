@@ -179,7 +179,7 @@ export async function completeLogin(): Promise<LoginResult | null> {
   sessionStorage.removeItem(REDIRECT_STATE_KEY)
   if (!saved) return null
 
-  const answer = new URL(window.location.href).searchParams
+  const { search, searchParams: answer } = new URL(window.location.href)
   if (
     saved.silent &&
     LOGIN_REQUIRED_ERRORS.has(answer.get('error') ?? '') &&
@@ -188,10 +188,15 @@ export async function completeLogin(): Promise<LoginResult | null> {
     throw new LoginRequiredError(saved.returnTo)
   }
 
+  // The token request names the redirect URI the SSO sent the code to, which
+  // is not this page when a backend relays the answer here
+  const callbackUrl = new URL(getAuthConfig().redirectUri, window.location.href)
+  callbackUrl.search = search
+
   const configuration = await discover()
   const tokenSet = await client.authorizationCodeGrant(
     configuration,
-    new URL(window.location.href),
+    callbackUrl,
     { pkceCodeVerifier: saved.code_verifier, expectedState: saved.state }
   )
   const sub = tokenSet.claims()?.sub

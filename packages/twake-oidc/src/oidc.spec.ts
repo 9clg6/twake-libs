@@ -49,6 +49,22 @@ describe('sign-in', () => {
     expect(sessionStorage.getItem('redirectState')).toBeNull()
   })
 
+  it('exchanges the code at the redirect URI when a backend relays the answer', async () => {
+    setUpBrowser('https://app.example.com/contacts', {
+      redirectUri: 'https://api.example.com/oidc/callback'
+    })
+    await startLogin()
+
+    window.location.href = 'https://app.example.com/?code=c&state=state#/users'
+    await completeLogin()
+
+    expect(client.authorizationCodeGrant).toHaveBeenCalledWith(
+      {},
+      new URL('https://api.example.com/oidc/callback?code=c&state=state'),
+      { pkceCodeVerifier: 'verifier', expectedState: 'state' }
+    )
+  })
+
   it('resolves to null when no sign-in is pending', async () => {
     setUpBrowser('https://app.example.com/callback')
     expect(await completeLogin()).toBeNull()
