@@ -58,6 +58,24 @@ Sign out:
 
 The tokens are kept in memory only, never in web storage: a reload signs in again through the SSO, silently while the SSO session lasts.
 
+The SSO must be served over HTTPS, except on a `localhost` or `*.localhost` host, for local and QA stacks.
+
+## Behind a relaying backend
+
+An SSO that only accepts exact redirect URIs cannot list every host of an application served on many hosts. The redirect URI is then the backend, which relays the SSO's answer to the page. Give `relayState`, the values the backend needs to find the page:
+
+```ts
+configureAuth({
+  // ...
+  redirectUri: `${window.MY_BACKEND_URL}/oidc/callback`,
+  relayState: () => ({ origin: window.location.origin })
+})
+```
+
+- The state is base64url JSON of these values plus a random `nonce`. The backend decodes it and redirects to the page with the same query.
+- `completeLogin()` runs on the page the backend sends the user to. The token request still names the redirect URI the SSO sent the code to.
+- The backend must check each value against its own allow list: the state comes back through the browser.
+
 ## In a frame of Twake Space
 
 An app shown in a frame of another app (Twake Space, ADR 010 of twake-space-architecture) cannot show the SSO portal: the SSO may refuse to be framed. Give `framed`, a boolean or, for an app framed on some routes only, a function read at each sign-in:

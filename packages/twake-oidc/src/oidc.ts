@@ -12,7 +12,10 @@ export interface AuthConfig {
   ssoUrl: string
   clientId: string
   scope: string
-  /** Page of the application the SSO sends the user back to */
+  /**
+   * Page of the application the SSO sends the user back to, or the backend
+   * that relays the answer to the page (`relayState`)
+   */
   redirectUri: string
   postLogoutRedirectUri: string
   /** Backend of the application: the only one that gets the access token */
@@ -32,6 +35,13 @@ export interface AuthConfig {
    * level (Twake Space: `twake-embed:login-required`). Called once.
    */
   onLoginRequired?: () => void
+  /**
+   * Values for a backend that relays the SSO's answer to the page, when the
+   * redirect URI is that backend (e.g. the origin of the page, for a backend
+   * serving many hosts of the application). They travel in the state, as
+   * base64url JSON, next to a random nonce no value replaces.
+   */
+  relayState?: () => Record<string, string>
 }
 
 export interface LoginResult {
@@ -90,25 +100,57 @@ export function getAuthConfig(): AuthConfig {
   return authConfig
 }
 
-export const isOnRedirectUri = (): boolean =>
-  window.location.pathname ===
-  new URL(getAuthConfig().redirectUri, window.location.href).pathname
+export const isOnRedirectUri = (): boolean => {
+  const { redirectUri, relayState } = getAuthConfig()
+  if (relayState) {
+    // The backend relays the SSO's answer, in the query, to any page
+    const answer = new URL(window.location.href).searchParams
+    return answer.has('state') && (answer.has('code') || answer.has('error'))
+  }
+  return (
+    window.location.pathname ===
+    new URL(redirectUri, window.location.href).pathname
+  )
+}
 
 async function discover(): Promise<client.Configuration> {
   const { ssoUrl, clientId } = getAuthConfig()
+  const issuer = new URL(ssoUrl)
   return await client.discovery(
-    new URL(ssoUrl),
+    issuer,
     clientId,
     // Tolerate up to 5 minutes of clock skew between browser and SSO server
     { [client.clockSkew]: 300 },
     undefined,
-    { timeout: DISCOVERY_TIMEOUT_S }
+    {
+      timeout: DISCOVERY_TIMEOUT_S,
+      // Local and QA stacks serve their SSO over plain HTTP on a .localhost
+      // host, which the browser keeps on the machine
+      ...(issuer.protocol === 'http:' &&
+        /(^|\.)localhost$/.test(issuer.hostname) && {
+          execute: [client.allowInsecureRequests]
+        })
+    }
   )
 }
 
 export const isFramed = (): boolean => {
   const { framed } = getAuthConfig()
   return typeof framed === 'function' ? framed() : framed === true
+}
+
+function buildState(): string {
+  const nonce = client.randomState()
+  const relayState = getAuthConfig().relayState?.()
+  if (!relayState) return nonce
+
+  const json = new TextEncoder().encode(
+    JSON.stringify({ ...relayState, nonce })
+  )
+  return btoa(String.fromCharCode(...json))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '')
 }
 
 function readRedirectState(): RedirectState | null {
@@ -142,7 +184,7 @@ export async function startLogin(): Promise<void> {
   const { redirectUri, scope } = getAuthConfig()
   const silent = isFramed()
   const code_verifier = client.randomPKCECodeVerifier()
-  const state = client.randomState()
+  const state = buildState()
   const authorizationUrl = client.buildAuthorizationUrl(await discover(), {
     redirect_uri: redirectUri,
     scope,
@@ -168,7 +210,8 @@ export async function startLogin(): Promise<void> {
 }
 
 /**
- * Finishes, on the redirect URI, the sign-in started by startLogin: the
+ * Finishes, on the page the SSO's answer reaches (the redirect URI, or the
+ * page a backend relays it to), the sign-in started by startLogin: the
  * tokens are kept for the API requests before this resolves.
  *
  * @returns null when no sign-in is pending, e.g. the page was reloaded.
@@ -179,7 +222,7 @@ export async function completeLogin(): Promise<LoginResult | null> {
   sessionStorage.removeItem(REDIRECT_STATE_KEY)
   if (!saved) return null
 
-  const answer = new URL(window.location.href).searchParams
+  const { search, searchParams: answer } = new URL(window.location.href)
   if (
     saved.silent &&
     LOGIN_REQUIRED_ERRORS.has(answer.get('error') ?? '') &&
@@ -188,10 +231,15 @@ export async function completeLogin(): Promise<LoginResult | null> {
     throw new LoginRequiredError(saved.returnTo)
   }
 
+  // The token request names the redirect URI the SSO sent the code to, which
+  // is not this page when a backend relays the answer here
+  const callbackUrl = new URL(getAuthConfig().redirectUri, window.location.href)
+  callbackUrl.search = search
+
   const configuration = await discover()
   const tokenSet = await client.authorizationCodeGrant(
     configuration,
-    new URL(window.location.href),
+    callbackUrl,
     { pkceCodeVerifier: saved.code_verifier, expectedState: saved.state }
   )
   const sub = tokenSet.claims()?.sub

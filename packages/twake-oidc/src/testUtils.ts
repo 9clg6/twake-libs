@@ -5,7 +5,7 @@ import { configureAuth, type AuthConfig } from './oidc'
 /** Browser globals the library reads, for tests running in node */
 export function setUpBrowser(
   href: string,
-  options: Pick<AuthConfig, 'framed' | 'onLoginRequired'> = {}
+  options: Partial<AuthConfig> = {}
 ): {
   assign: ReturnType<typeof vi.fn>
   replace: ReturnType<typeof vi.fn>
@@ -17,6 +17,7 @@ export function setUpBrowser(
   vi.stubGlobal('window', {
     location: {
       href,
+      origin: url.origin,
       pathname: url.pathname,
       search: url.search,
       hash: url.hash,

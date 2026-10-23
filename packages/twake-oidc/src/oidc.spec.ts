@@ -13,6 +13,7 @@ import { setUpBrowser } from './testUtils'
 vi.mock('openid-client', () => ({
   discovery: vi.fn().mockResolvedValue({}),
   clockSkew: Symbol('clockSkew'),
+  allowInsecureRequests: vi.fn(),
   randomPKCECodeVerifier: vi.fn(() => 'verifier'),
   randomState: vi.fn(() => 'state'),
   calculatePKCECodeChallenge: vi.fn().mockResolvedValue('challenge'),
@@ -47,6 +48,85 @@ describe('sign-in', () => {
     expect(result?.returnTo).toBe('/contacts/42?q=a')
     expect(getAccessToken()).toBe('token')
     expect(sessionStorage.getItem('redirectState')).toBeNull()
+  })
+
+  it('exchanges the code at the redirect URI when a backend relays the answer', async () => {
+    setUpBrowser('https://app.example.com/contacts', {
+      redirectUri: 'https://api.example.com/oidc/callback'
+    })
+    await startLogin()
+
+    window.location.href = 'https://app.example.com/?code=c&state=state#/users'
+    await completeLogin()
+
+    expect(client.authorizationCodeGrant).toHaveBeenCalledWith(
+      {},
+      new URL('https://api.example.com/oidc/callback?code=c&state=state'),
+      { pkceCodeVerifier: 'verifier', expectedState: 'state' }
+    )
+  })
+
+  it('hands the relay values to the backend in the state', async () => {
+    setUpBrowser('https://app.example.com/contacts', {
+      redirectUri: 'https://api.example.com/oidc/callback',
+      relayState: () => ({ origin: window.location.origin, nonce: 'forged' })
+    })
+    await startLogin()
+
+    const state =
+      new URLSearchParams(
+        vi.mocked(client.buildAuthorizationUrl).mock.calls[0][1]
+      ).get('state') ?? ''
+    expect(JSON.parse(Buffer.from(state, 'base64url').toString())).toEqual({
+      origin: 'https://app.example.com',
+      nonce: 'state'
+    })
+    expect(state).not.toMatch(/[+/=]/)
+
+    window.location.href = `https://app.example.com/?code=c&state=${state}`
+    await completeLogin()
+
+    expect(client.authorizationCodeGrant).toHaveBeenCalledWith(
+      {},
+      expect.any(URL),
+      { pkceCodeVerifier: 'verifier', expectedState: state }
+    )
+  })
+
+  it('reaches an SSO served over plain HTTP', async () => {
+    setUpBrowser('https://app.example.com/contacts', {
+      ssoUrl: 'http://sso.localhost'
+    })
+    await startLogin()
+
+    expect(client.discovery).toHaveBeenCalledWith(
+      new URL('http://sso.localhost'),
+      'app',
+      expect.anything(),
+      undefined,
+      expect.objectContaining({ execute: [client.allowInsecureRequests] })
+    )
+  })
+
+  it.each(['https://sso.example.com', 'http://sso.example.com'])(
+    'keeps insecure requests off for %s',
+    async ssoUrl => {
+      setUpBrowser('https://app.example.com/contacts', { ssoUrl })
+      await startLogin()
+
+      const options = vi.mocked(client.discovery).mock.calls[0][4]
+      expect(options?.execute).toBeUndefined()
+    }
+  )
+
+  it('does not come back to the page a backend relayed the answer to', async () => {
+    setUpBrowser('https://app.example.com/?code=spent&state=old', {
+      redirectUri: 'https://api.example.com/oidc/callback',
+      relayState: () => ({ origin: window.location.origin })
+    })
+    await startLogin()
+
+    expect(getPendingReturnTo()).toBe('/')
   })
 
   it('resolves to null when no sign-in is pending', async () => {
