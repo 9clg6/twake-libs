@@ -13,6 +13,7 @@ import { setUpBrowser } from './testUtils'
 vi.mock('openid-client', () => ({
   discovery: vi.fn().mockResolvedValue({}),
   clockSkew: Symbol('clockSkew'),
+  allowInsecureRequests: vi.fn(),
   randomPKCECodeVerifier: vi.fn(() => 'verifier'),
   randomState: vi.fn(() => 'state'),
   calculatePKCECodeChallenge: vi.fn().mockResolvedValue('challenge'),
@@ -90,6 +91,42 @@ describe('sign-in', () => {
       expect.any(URL),
       { pkceCodeVerifier: 'verifier', expectedState: state }
     )
+  })
+
+  it('reaches an SSO served over plain HTTP', async () => {
+    setUpBrowser('https://app.example.com/contacts', {
+      ssoUrl: 'http://sso.localhost'
+    })
+    await startLogin()
+
+    expect(client.discovery).toHaveBeenCalledWith(
+      new URL('http://sso.localhost'),
+      'app',
+      expect.anything(),
+      undefined,
+      expect.objectContaining({ execute: [client.allowInsecureRequests] })
+    )
+  })
+
+  it.each(['https://sso.example.com', 'http://sso.example.com'])(
+    'keeps insecure requests off for %s',
+    async ssoUrl => {
+      setUpBrowser('https://app.example.com/contacts', { ssoUrl })
+      await startLogin()
+
+      const options = vi.mocked(client.discovery).mock.calls[0][4]
+      expect(options?.execute).toBeUndefined()
+    }
+  )
+
+  it('does not come back to the page a backend relayed the answer to', async () => {
+    setUpBrowser('https://app.example.com/?code=spent&state=old', {
+      redirectUri: 'https://api.example.com/oidc/callback',
+      relayState: () => ({ origin: window.location.origin })
+    })
+    await startLogin()
+
+    expect(getPendingReturnTo()).toBe('/')
   })
 
   it('resolves to null when no sign-in is pending', async () => {

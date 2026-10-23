@@ -115,13 +115,22 @@ export const isOnRedirectUri = (): boolean => {
 
 async function discover(): Promise<client.Configuration> {
   const { ssoUrl, clientId } = getAuthConfig()
+  const issuer = new URL(ssoUrl)
   return await client.discovery(
-    new URL(ssoUrl),
+    issuer,
     clientId,
     // Tolerate up to 5 minutes of clock skew between browser and SSO server
     { [client.clockSkew]: 300 },
     undefined,
-    { timeout: DISCOVERY_TIMEOUT_S }
+    {
+      timeout: DISCOVERY_TIMEOUT_S,
+      // Local and QA stacks serve their SSO over plain HTTP on a .localhost
+      // host, which the browser keeps on the machine
+      ...(issuer.protocol === 'http:' &&
+        /(^|\.)localhost$/.test(issuer.hostname) && {
+          execute: [client.allowInsecureRequests]
+        })
+    }
   )
 }
 

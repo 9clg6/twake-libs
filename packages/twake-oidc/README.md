@@ -58,6 +58,8 @@ Sign out:
 
 The tokens are kept in memory only, never in web storage: a reload signs in again through the SSO, silently while the SSO session lasts.
 
+The SSO must be served over HTTPS, except on a `localhost` or `*.localhost` host, for local and QA stacks.
+
 ## Behind a relaying backend
 
 An SSO that only accepts exact redirect URIs cannot list every host of an application served on many hosts. The redirect URI is then the backend, which relays the SSO's answer to the page. Give `relayState`, the values the backend needs to find the page:
