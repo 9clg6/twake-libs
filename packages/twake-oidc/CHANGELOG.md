@@ -1,3 +1,12 @@
+# @linagora/twake-oidc [1.3.0](https://github.com/linagora/twake-libs/compare/@linagora/twake-oidc@1.2.0...@linagora/twake-oidc@1.3.0) (2026-10-23)
+
+
+### Features
+
+* **twake-oidc:** Exchange the code at the redirect URI when a backend relays the answer ([866d85b](https://github.com/linagora/twake-libs/commit/866d85bce4e9d8bf5d523e46cbfe71fc042550ea))
+* **twake-oidc:** Hand relay values to the backend in the state ([0cf3da9](https://github.com/linagora/twake-libs/commit/0cf3da95d901f33d5cf2fdcd70154b7a0e775dc7))
+* **twake-oidc:** Reach a local SSO served over plain HTTP ([cc8e329](https://github.com/linagora/twake-libs/commit/cc8e3297dadf44863d19c4989f718d547a65ed4d))
+
 # @linagora/twake-oidc [1.2.0](https://github.com/linagora/twake-libs/compare/@linagora/twake-oidc@1.1.0...@linagora/twake-oidc@1.2.0) (2026-10-13)
 
 
