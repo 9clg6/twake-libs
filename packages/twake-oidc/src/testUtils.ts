@@ -17,6 +17,7 @@ export function setUpBrowser(
   vi.stubGlobal('window', {
     location: {
       href,
+      origin: url.origin,
       pathname: url.pathname,
       search: url.search,
       hash: url.hash,

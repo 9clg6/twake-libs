@@ -65,6 +65,33 @@ describe('sign-in', () => {
     )
   })
 
+  it('hands the relay values to the backend in the state', async () => {
+    setUpBrowser('https://app.example.com/contacts', {
+      redirectUri: 'https://api.example.com/oidc/callback',
+      relayState: () => ({ origin: window.location.origin, nonce: 'forged' })
+    })
+    await startLogin()
+
+    const state =
+      new URLSearchParams(
+        vi.mocked(client.buildAuthorizationUrl).mock.calls[0][1]
+      ).get('state') ?? ''
+    expect(JSON.parse(Buffer.from(state, 'base64url').toString())).toEqual({
+      origin: 'https://app.example.com',
+      nonce: 'state'
+    })
+    expect(state).not.toMatch(/[+/=]/)
+
+    window.location.href = `https://app.example.com/?code=c&state=${state}`
+    await completeLogin()
+
+    expect(client.authorizationCodeGrant).toHaveBeenCalledWith(
+      {},
+      expect.any(URL),
+      { pkceCodeVerifier: 'verifier', expectedState: state }
+    )
+  })
+
   it('resolves to null when no sign-in is pending', async () => {
     setUpBrowser('https://app.example.com/callback')
     expect(await completeLogin()).toBeNull()
