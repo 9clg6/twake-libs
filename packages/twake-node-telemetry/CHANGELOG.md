@@ -1,3 +1,10 @@
+# @linagora/twake-node-telemetry [1.1.0](https://github.com/linagora/twake-libs/compare/@linagora/twake-node-telemetry@1.0.0...@linagora/twake-node-telemetry@1.1.0) (2026-10-26)
+
+
+### Features
+
+* **twake-node-telemetry:** Keep personal and request data out of Sentry ([eb1f65c](https://github.com/linagora/twake-libs/commit/eb1f65cc6eb2e853ec9f61dbb2794bee4411e61f))
+
 # @linagora/twake-node-telemetry 1.0.0 (2026-10-26)
 
 
