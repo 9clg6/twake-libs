@@ -1,3 +1,10 @@
+# @linagora/twake-embed [3.7.0](https://github.com/linagora/twake-libs/compare/@linagora/twake-embed@3.6.0...@linagora/twake-embed@3.7.0) (2026-10-27)
+
+
+### Features
+
+* **twake-embed:** Let TwakeSpace send picked files to an app's resource ([b945bab](https://github.com/linagora/twake-libs/commit/b945bab7d470d1813a715194dc3ece915f980dc9))
+
 # @linagora/twake-embed [3.6.0](https://github.com/linagora/twake-libs/compare/@linagora/twake-embed@3.5.0...@linagora/twake-embed@3.6.0) (2026-10-13)
 
 
