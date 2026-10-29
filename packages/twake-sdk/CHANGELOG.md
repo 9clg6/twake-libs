@@ -1,3 +1,10 @@
+# @linagora/twake-sdk [1.2.0](https://github.com/linagora/twake-libs/compare/@linagora/twake-sdk@1.1.0...@linagora/twake-sdk@1.2.0) (2026-10-29)
+
+
+### Features
+
+* **twake-sdk:** Update the container app on the first login of a page ([b1ff79c](https://github.com/linagora/twake-libs/commit/b1ff79cf33f8302db8bc4d880d6565b341f700e9))
+
 # @linagora/twake-sdk [1.1.0](https://github.com/linagora/twake-libs/compare/@linagora/twake-sdk@1.0.0...@linagora/twake-sdk@1.1.0) (2026-10-07)
 
 
