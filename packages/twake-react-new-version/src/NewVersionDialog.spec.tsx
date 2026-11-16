@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor } from '@testing-library/react'
+import { act, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import React from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -12,11 +12,15 @@ import { requestVersionCheck } from './version'
 const renderDialog = ({
   served = 'b2',
   lang = 'en',
-  intervalMs
+  intervalMs,
+  image,
+  imageBackground
 }: {
   served?: string | null
   lang?: string
   intervalMs?: number
+  image?: string
+  imageBackground?: string
 } = {}): {
   fetchServed: ReturnType<typeof vi.fn>
   reload: ReturnType<typeof vi.fn>
@@ -32,6 +36,8 @@ const renderDialog = ({
           fetchServed={fetchServed}
           reload={reload}
           intervalMs={intervalMs}
+          image={image}
+          imageBackground={imageBackground}
         />
       </I18n>
     </TwakeMuiThemeProvider>
@@ -47,7 +53,7 @@ const check = async (): Promise<void> => {
 }
 
 const dialog = (): HTMLElement | null =>
-  screen.queryByRole('dialog', { name: 'New version available' })
+  screen.queryByRole('dialog', { name: "What's new in Twake Mail" })
 
 afterEach(() => {
   vi.useRealTimers()
@@ -67,7 +73,7 @@ describe('NewVersionDialog', () => {
     await check()
 
     expect(await screen.findByRole('dialog')).toHaveTextContent(
-      'Reload the page to use the latest version of Twake Mail.'
+      'An update just arrived. Reload to get it.'
     )
     await userEvent.click(screen.getByRole('button', { name: 'Reload' }))
     expect(reload).toHaveBeenCalledTimes(1)
@@ -255,11 +261,10 @@ describe('NewVersionDialog', () => {
 
     await check()
 
-    expect(
-      await screen.findByRole('dialog', { name: 'Nouvelle version disponible' })
-    ).toHaveTextContent(
-      'Rechargez la page pour utiliser la dernière version de Twake Mail.'
-    )
+    const fr = await screen.findByRole('dialog')
+    expect(fr).toHaveAccessibleName(expect.stringContaining('Twake Mail'))
+    expect(fr).not.toHaveTextContent('%{appName}')
+    expect(fr).not.toHaveTextContent('An update just arrived')
     expect(
       screen.getByRole('button', { name: 'Pas maintenant' })
     ).toBeInTheDocument()
@@ -271,7 +276,80 @@ describe('NewVersionDialog', () => {
     await check()
 
     expect(
-      await screen.findByRole('dialog', { name: 'New version available' })
+      await screen.findByRole('dialog', { name: "What's new in Twake Mail" })
     ).toBeInTheDocument()
+  })
+})
+
+describe('NewVersionDialog look', () => {
+  const open = async (
+    options: Parameters<typeof renderDialog>[0] = {}
+  ): Promise<HTMLElement> => {
+    renderDialog(options)
+    await check()
+    return screen.findByRole('dialog')
+  }
+  const banner = (d: HTMLElement): HTMLElement | null =>
+    d.querySelector('img')?.parentElement ?? null
+
+  it('names the dialog after its title, with the app name', async () => {
+    const d = await open()
+
+    expect(d).toHaveAccessibleName("What's new in Twake Mail")
+    expect(d).toHaveTextContent('An update just arrived. Reload to get it.')
+    expect(d).not.toHaveTextContent('%{appName}')
+  })
+
+  it('shows a decorative illustration in a banner when given an image', async () => {
+    const d = await open({
+      image: '/mail.png',
+      imageBackground: 'rgb(1, 2, 3)'
+    })
+
+    const img = d.querySelector('img')
+    expect(img).toHaveAttribute('src', '/mail.png')
+    expect(img).toHaveAttribute('alt', '')
+    expect(within(d).queryByRole('img')).toBe(null)
+    expect(banner(d)).toHaveStyle({ backgroundColor: 'rgb(1, 2, 3)' })
+  })
+
+  it('has a banner with a default background when no colour is given', async () => {
+    const d = await open({ image: '/mail.png' })
+
+    const color = getComputedStyle(banner(d) as HTMLElement).backgroundColor
+    expect(color).not.toBe('')
+    expect(color).not.toBe('transparent')
+    expect(color).not.toBe('rgba(0, 0, 0, 0)')
+  })
+
+  it('has no banner and no image without an image', async () => {
+    const d = await open({ imageBackground: 'rgb(1, 2, 3)' })
+
+    expect(d.querySelector('img')).toBe(null)
+  })
+
+  it('centres the title and the body', async () => {
+    await open()
+
+    expect(screen.getByText("What's new in Twake Mail")).toHaveStyle({
+      textAlign: 'center'
+    })
+    expect(
+      screen.getByText('An update just arrived. Reload to get it.')
+    ).toHaveStyle({ textAlign: 'center' })
+  })
+
+  it('centres the buttons, « Not now » before « Reload »', async () => {
+    const d = await open()
+
+    const notNow = screen.getByTestId('new-version-not-now')
+    const reloadButton = screen.getByTestId('new-version-reload')
+    expect(notNow.parentElement).toBe(reloadButton.parentElement)
+    expect(notNow.parentElement).toHaveStyle({ justifyContent: 'center' })
+    expect(
+      notNow.compareDocumentPosition(reloadButton) &
+        Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy()
+    expect(d).toContainElement(notNow)
   })
 })

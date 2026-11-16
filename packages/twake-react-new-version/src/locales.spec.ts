@@ -10,6 +10,18 @@ import vi from './locales/vi.json'
 
 const texts = Object.entries({ de, en, es, fr, it: it_, ru, vi })
 
+it('has the seven languages', () => {
+  expect(texts.map(([lang]) => lang).sort()).toEqual([
+    'de',
+    'en',
+    'es',
+    'fr',
+    'it',
+    'ru',
+    'vi'
+  ])
+})
+
 it.each(texts)('%s has every text, naming the app', (_, locale) => {
   const { twakeNewVersion } = locale
 
@@ -17,5 +29,7 @@ it.each(texts)('%s has every text, naming the app', (_, locale) => {
     Object.keys(en.twakeNewVersion).sort()
   )
   Object.values(twakeNewVersion).forEach(text => expect(text).not.toBe(''))
-  expect(twakeNewVersion.body).toContain('%{appName}')
+  expect(twakeNewVersion.title).toContain('%{appName}')
+  expect(typeof twakeNewVersion.body).toBe('string')
+  expect(twakeNewVersion.body.length).toBeGreaterThan(0)
 })
