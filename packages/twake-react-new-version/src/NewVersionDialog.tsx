@@ -89,9 +89,12 @@ const useVersionChecks = (
 }
 
 /**
- * Decorative banner at the top of the dialog. Full width (the dialog has no
- * padding of its own); the image may be taller than the banner and is then
- * cut at its bottom
+ * Decorative banner at the top of the dialog. The small dialog of twake-mui
+ * pads its paper by 8 px on each side below `lg`: the banner cancels that
+ * margin there, to reach the edges of the paper (which clips it to its rounded
+ * corners). The image is taller than the banner (120%) and anchored at its top,
+ * so its bottom is cut. Without `background`, the tint is the light primary,
+ * a dimmed primary in the dark scheme where the light one glares
  */
 const Banner = ({
   image,
@@ -101,22 +104,36 @@ const Banner = ({
   background?: string
 }): React.ReactElement => (
   <Box
-    sx={{
+    sx={theme => ({
       height: 130,
       overflow: 'hidden',
       display: 'flex',
       justifyContent: 'center',
+      alignItems: 'flex-start',
+      [theme.breakpoints.down('lg')]: { marginInline: -1 },
       backgroundColor:
         background ??
-        ((theme): string =>
-          theme.vars?.palette.primary.light ?? theme.palette.primary.light)
-    }}
+        theme.vars?.palette.primary.light ??
+        theme.palette.primary.light,
+      ...(background === undefined &&
+        theme.applyStyles('dark', {
+          backgroundColor: theme.alpha(
+            theme.vars?.palette.primary.main ?? theme.palette.primary.main,
+            0.16
+          )
+        }))
+    })}
   >
     <img
       src={image}
       alt=""
       aria-hidden
-      style={{ height: '100%', objectFit: 'contain' }}
+      style={{
+        height: '120%',
+        marginTop: 6,
+        flexShrink: 0,
+        objectFit: 'contain'
+      }}
     />
   </Box>
 )
