@@ -89,6 +89,39 @@ const useVersionChecks = (
 }
 
 /**
+ * Decorative banner at the top of the dialog. Full width (the dialog has no
+ * padding of its own); the image may be taller than the banner and is then
+ * cut at its bottom
+ */
+const Banner = ({
+  image,
+  background
+}: {
+  image: string
+  background?: string
+}): React.ReactElement => (
+  <Box
+    sx={{
+      height: 130,
+      overflow: 'hidden',
+      display: 'flex',
+      justifyContent: 'center',
+      backgroundColor:
+        background ??
+        ((theme): string =>
+          theme.vars?.palette.primary.light ?? theme.palette.primary.light)
+    }}
+  >
+    <img
+      src={image}
+      alt=""
+      aria-hidden
+      style={{ height: '100%', objectFit: 'contain' }}
+    />
+  </Box>
+)
+
+/**
  * « New version available »: offers a reload to a tab that runs an older
  * build than the served one. « Not now », Escape or a click outside decline
  * that build for the life of the tab: the dialog comes back only for a build
@@ -132,28 +165,7 @@ export const NewVersionDialog = ({
       data-testid="new-version-dialog"
     >
       {image !== undefined && (
-        // Full width (the dialog has no padding of its own); the image may be
-        // taller than the banner and is then cut at its bottom
-        <Box
-          sx={{
-            height: 130,
-            overflow: 'hidden',
-            display: 'flex',
-            justifyContent: 'center',
-            backgroundColor:
-              imageBackground ??
-              ((theme): string =>
-                theme.vars?.palette.primary.light ??
-                theme.palette.primary.light)
-          }}
-        >
-          <img
-            src={image}
-            alt=""
-            aria-hidden
-            style={{ height: '100%', objectFit: 'contain' }}
-          />
-        </Box>
+        <Banner image={image} background={imageBackground} />
       )}
       <DialogTitle id={titleId} sx={{ textAlign: 'center' }}>
         {/* The typings of twake-i18n's `t` take no interpolation options */}
