@@ -1,6 +1,7 @@
 import React, { useEffect, useId, useRef, useState } from 'react'
 
 import {
+  Box,
   Button,
   Dialog,
   DialogActions,
@@ -32,6 +33,10 @@ export interface NewVersionDialogProps {
   fetchServed?: () => Promise<string | null>
   reload?: () => void
   intervalMs?: number
+  /** URL of a decorative illustration, drawn in a banner at the top */
+  image?: string
+  /** CSS colour of the banner, the theme's light primary by default */
+  imageBackground?: string
 }
 
 /**
@@ -94,7 +99,9 @@ export const NewVersionDialog = ({
   appName,
   fetchServed = fetchServedBuild,
   reload = (): void => window.location.reload(),
-  intervalMs = 10 * MINUTE
+  intervalMs = 10 * MINUTE,
+  image,
+  imageBackground
 }: NewVersionDialogProps): React.ReactElement => {
   const { t, lang } = useI18n()
   useExtendI18n({ [lang]: locales[lang] ?? locales.en })
@@ -124,14 +131,40 @@ export const NewVersionDialog = ({
       aria-labelledby={titleId}
       data-testid="new-version-dialog"
     >
-      <DialogTitle id={titleId}>{t('twakeNewVersion.title')}</DialogTitle>
+      {image !== undefined && (
+        // Full width (the dialog has no padding of its own); the image may be
+        // taller than the banner and is then cut at its bottom
+        <Box
+          sx={{
+            height: 130,
+            overflow: 'hidden',
+            display: 'flex',
+            justifyContent: 'center',
+            backgroundColor:
+              imageBackground ??
+              ((theme): string =>
+                theme.vars?.palette.primary.light ??
+                theme.palette.primary.light)
+          }}
+        >
+          <img
+            src={image}
+            alt=""
+            aria-hidden
+            style={{ height: '100%', objectFit: 'contain' }}
+          />
+        </Box>
+      )}
+      <DialogTitle id={titleId} sx={{ textAlign: 'center' }}>
+        {/* The typings of twake-i18n's `t` take no interpolation options */}
+        {t('twakeNewVersion.title').replace('%{appName}', appName)}
+      </DialogTitle>
       <DialogContent>
-        <DialogContentText>
-          {/* The typings of twake-i18n's `t` take no interpolation options */}
+        <DialogContentText sx={{ textAlign: 'center' }}>
           {t('twakeNewVersion.body').replace('%{appName}', appName)}
         </DialogContentText>
       </DialogContent>
-      <DialogActions>
+      <DialogActions sx={{ justifyContent: 'center' }}>
         <Button
           variant="outlined"
           data-testid="new-version-not-now"

@@ -1,7 +1,7 @@
 {
   "twakeNewVersion": {
-    "title": "Nouvelle version disponible",
-    "body": "Rechargez la page pour utiliser la dernière version de %{appName}.",
+    "title": "Nouveautés de %{appName}",
+    "body": "Une mise à jour vient d'arriver. Rechargez pour l'obtenir.",
     "reload": "Recharger",
     "notNow": "Pas maintenant"
   }
