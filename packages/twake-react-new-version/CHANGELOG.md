@@ -1,3 +1,10 @@
+# @linagora/twake-react-new-version [1.1.0](https://github.com/linagora/twake-libs/compare/@linagora/twake-react-new-version@1.0.0...@linagora/twake-react-new-version@1.1.0) (2026-11-16)
+
+
+### Features
+
+* **twake-react-new-version:** Illustration banner and centred text ([#65](https://github.com/linagora/twake-libs/issues/65)) ([ee83d0d](https://github.com/linagora/twake-libs/commit/ee83d0dd604a26f87cd0625927451b705acf2605))
+
 # @linagora/twake-react-new-version 1.0.0 (2026-11-13)
 
 
