@@ -1,3 +1,10 @@
+## @linagora/twake-react-new-version [1.1.1](https://github.com/linagora/twake-libs/compare/@linagora/twake-react-new-version@1.1.0...@linagora/twake-react-new-version@1.1.1) (2026-11-16)
+
+
+### Bug Fixes
+
+* **twake-react-new-version:** Describe the optional illustration ([#66](https://github.com/linagora/twake-libs/issues/66)) ([08cb0ac](https://github.com/linagora/twake-libs/commit/08cb0ac0a9b43d699e9825d8452469d11f123448))
+
 # @linagora/twake-react-new-version [1.1.0](https://github.com/linagora/twake-libs/compare/@linagora/twake-react-new-version@1.0.0...@linagora/twake-react-new-version@1.1.0) (2026-11-16)
 
 
